@@ -35,6 +35,7 @@ Rails::Initializer.run do |config|
   config.gem 'highline', :version => '1.5.1'
   config.gem 'open4', :version => '0.9.3'
   config.gem 'syntax', :version => '1.0.0'
+  config.gem 'capistrano_auto_multi_install'
 end
 
 require 'open4'

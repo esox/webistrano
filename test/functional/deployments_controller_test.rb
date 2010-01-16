@@ -1,8 +1,17 @@
 require File.dirname(__FILE__) + '/../test_helper'
+require 'deployments_controller'
 
-class DeploymentsControllerTest < ActionController::TestCase
+# Re-raise errors caught by the controller.
+class DeploymentsController; def rescue_action(e) raise e end; end
+
+class DeploymentsControllerTest < Test::Unit::TestCase
+  fixtures :deployments
 
   def setup
+    @controller = DeploymentsController.new
+    @request    = ActionController::TestRequest.new
+    @response   = ActionController::TestResponse.new
+    
     @project = create_new_project(:name => 'Project X')
     @stage = create_new_stage(:name => 'Prod', :project => @project)
     @role = create_new_role(:name => 'web', :stage => @stage)

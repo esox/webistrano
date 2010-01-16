@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ConfigurationParameterTest < ActiveSupport::TestCase
+class ConfigurationParameterTest < Test::Unit::TestCase
 
   def setup
     @project = create_new_project

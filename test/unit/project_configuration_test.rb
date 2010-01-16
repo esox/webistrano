@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class ProjectConfigurationTest < ActiveSupport::TestCase
+class ProjectConfigurationTest < Test::Unit::TestCase
   
   def test_templates
     assert_not_nil ProjectConfiguration.templates

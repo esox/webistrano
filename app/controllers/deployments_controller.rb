@@ -2,18 +2,18 @@ class DeploymentsController < ApplicationController
   
   before_filter :load_stage
   before_filter :ensure_deployment_possible, :only => [:new, :create]
-
+  
   # GET /projects/1/stages/1/deployments
   # GET /projects/1/stages/1/deployments.xml
   def index
     @deployments = @stage.deployments
-
+    
     respond_to do |format|
       format.html # index.rhtml
       format.xml  { render :xml => @deployments.to_xml }
     end
   end
-
+  
   # GET /projects/1/stages/1/deployments/1
   # GET /projects/1/stages/1/deployments/1.xml
   def show
@@ -26,42 +26,53 @@ class DeploymentsController < ApplicationController
       format.js { render :partial => 'status.html.erb' }
     end
   end
-
+  
   # GET /projects/1/stages/1/deployments/new
   def new
     @deployment = @stage.deployments.new
     @deployment.task = params[:task]
-    
     if params[:repeat]
       @original = @stage.deployments.find(params[:repeat])
       @deployment = @original.repeat
     end
+    @stage_prompt_configurations = @stage.prompt_configurations
+    @recipe_configuration_parameters = RecipeConfiguration.required_for_task [@stage, @deployment.task]
   end
-
+  
   # POST /projects/1/stages/1/deployments
   # POST /projects/1/stages/1/deployments.xml
   def create
     @deployment = Deployment.new
-    
     respond_to do |format|
-      if populate_deployment_and_fire
-        
+      ok,stage_parameters,recipe_parameters = check_and_extract_parameters
+      if ok && populate_deployment_and_fire
         @deployment.deploy_in_background!
-
         format.html { redirect_to project_stage_deployment_url(@project, @stage, @deployment)}
         format.xml  { head :created, :location => project_stage_deployment_url(@project, @stage, @deployment) }
       else
         @deployment.clear_lock_error
+        @deployment.task = params[:task]
+        if params[:repeat]
+          @original = @stage.deployments.find(params[:repeat])
+          @deployment = @original.repeat
+        end
+        @stage_prompt_configurations = stage_parameters
+        @recipe_configuration_parameters = recipe_parameters
+        unless ok
+          @stage_prompt_configurations.each do |conf|
+            @deployment.errors.add('base', "Please fill out the parameter '#{conf.name}'") unless !@deployment.prompt_config.blank? && !@deployment.prompt_config[conf.name.to_sym].blank?
+          end
+        end
         format.html { render :action => "new" }
         format.xml  { render :xml => @deployment.errors.to_xml }
       end
     end
   end
-
+  
   # GET /projects/1/stages/1/deployments/latest
   def latest
     @deployment = @stage.deployments.find(:first, :order => "created_at desc")
-
+    
     respond_to do |format|
       format.html { render :action => "show"}
       format.xml do
@@ -78,7 +89,7 @@ class DeploymentsController < ApplicationController
   def cancel
     redirect_to "/" and return unless request.post?
     @deployment = @stage.deployments.find(:first, :order => "created_at desc")
-
+    
     respond_to do |format|
       begin
         @deployment.cancel!
@@ -100,7 +111,7 @@ class DeploymentsController < ApplicationController
   protected
   def ensure_deployment_possible
     if current_stage.deployment_possible?
-        true
+      true
     else
       respond_to do |format|  
         flash[:error] = 'A deployment is currently not possible.'
@@ -117,6 +128,25 @@ class DeploymentsController < ApplicationController
     else
       @auto_scroll = false
     end
+  end
+  
+  # Check that every parameter is valid
+  def check_and_extract_parameters
+    ok = true
+    stage_parameters  = Array.new
+    recipe_parameters = Array.new
+    params[:deployment][:prompt_config].each do |id,value|
+      value = value[:value]
+      p = ConfigurationParameter.find(id)
+      p.value = value
+      if p.is_a? RecipeConfiguration
+        recipe_parameters << p
+      else
+        stage_parameters << p
+      end
+      ok = p.valid? && ok
+    end
+    return ok,stage_parameters,recipe_parameters
   end
   
   # sets @deployment

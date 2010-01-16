@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class Webistrano::DeployerTest < ActiveSupport::TestCase
+class Webistrano::DeployerTest < Test::Unit::TestCase
 
   def setup
     @project = create_new_project(:template => 'pure_file')
@@ -385,11 +385,11 @@ class Webistrano::DeployerTest < ActiveSupport::TestCase
     #
 
     # Logger stubing
-    mock_cap_logger = mock()
+    mock_cap_logger = mock
     mock_cap_logger.expects(:level=).with(3)
 
     # config stubbing
-    mock_cap_config = mock()
+    mock_cap_config = mock
     mock_cap_config.stubs(:logger).returns(mock_cap_logger)
     mock_cap_config.stubs(:logger=)
     mock_cap_config.stubs(:load)
@@ -412,7 +412,7 @@ class Webistrano::DeployerTest < ActiveSupport::TestCase
       else
         [:password, :application, :repository, :real_revision, :webistrano_stage, :webistrano_project].include?(x)
       end
-    }.times(7)
+    }.times(8)
 
     # main mock install
     Webistrano::Configuration.expects(:new).returns(mock_cap_config)
@@ -558,51 +558,6 @@ class Webistrano::DeployerTest < ActiveSupport::TestCase
     mock_cap_config.expects(:load).with(:string => @project.tasks )
     mock_cap_config.expects(:load).with(:string => recipe_1.body )
     mock_cap_config.expects(:load).with(:string => recipe_2.body )
-
-    # main mock install
-    Webistrano::Configuration.expects(:new).returns(mock_cap_config)
-    
-    #
-    # start 
-    
-    deployer = Webistrano::Deployer.new(@deployment)
-    deployer.invoke_task!
-  end
-  
-  def test_load_order_of_recipes
-    recipe_1 = create_new_recipe(:name => 'B', :body => 'foobar here')
-    @stage.recipes << recipe_1
-    
-    recipe_2 = create_new_recipe(:name => 'A', :body => 'more foobar here')
-    @stage.recipes << recipe_2
-    
-    # Logger stubing
-    mock_cap_logger = mock
-    mock_cap_logger.expects(:level=).with(3)
-
-    # config stubbing
-    mock_cap_config = mock
-    mock_cap_config.stubs(:trigger)
-    mock_cap_config.stubs(:logger).returns(mock_cap_logger)
-    mock_cap_config.stubs(:logger=)
-    mock_cap_config.stubs(:find_and_execute_task)
-    mock_cap_config.stubs(:[])
-    mock_cap_config.stubs(:fetch).with(:scm)
-
-    # vars
-    mock_cap_config.stubs(:set)
-
-    # roles
-    mock_cap_config.stubs(:role)
-    
-    #
-    # now the interesting part, load
-    #
-    
-    seq = sequence('recipe_loading')
-    mock_cap_config.stubs(:load)
-    mock_cap_config.expects(:load).with(:string => recipe_2.body ).in_sequence(seq)
-    mock_cap_config.expects(:load).with(:string => recipe_1.body ).in_sequence(seq)
 
     # main mock install
     Webistrano::Configuration.expects(:new).returns(mock_cap_config)

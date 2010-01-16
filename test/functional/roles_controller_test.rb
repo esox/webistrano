@@ -1,8 +1,17 @@
 require File.dirname(__FILE__) + '/../test_helper'
+require 'roles_controller'
 
-class RolesControllerTest < ActionController::TestCase
+# Re-raise errors caught by the controller.
+class RolesController; def rescue_action(e) raise e end; end
+
+class RolesControllerTest < Test::Unit::TestCase
+  fixtures :roles
 
   def setup
+    @controller = RolesController.new
+    @request    = ActionController::TestRequest.new
+    @response   = ActionController::TestResponse.new
+    
     @project = create_new_project
     @stage = create_new_stage(:project => @project)
     @host = create_new_host

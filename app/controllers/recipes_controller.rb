@@ -39,7 +39,7 @@ class RecipesController < ApplicationController
     @recipe = Recipe.new((params[:recipe] || {}).merge(:user_id => current_user.id))
 
     respond_to do |format|
-      if @recipe.save
+      if @recipe.save(false)
         flash[:notice] = 'Recipe was successfully created.'
         format.html { redirect_to recipe_url(@recipe) }
         format.xml  { head :created, :location => recipe_url(@recipe) }

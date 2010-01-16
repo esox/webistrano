@@ -1,8 +1,16 @@
 require File.dirname(__FILE__) + '/../test_helper'
+require 'recipes_controller'
 
-class RecipesControllerTest < ActionController::TestCase
+# Re-raise errors caught by the controller.
+class RecipesController; def rescue_action(e) raise e end; end
+
+class RecipesControllerTest < Test::Unit::TestCase
 
   def setup
+    @controller = RecipesController.new
+    @request    = ActionController::TestRequest.new
+    @response   = ActionController::TestResponse.new
+    
     @recipe = create_new_recipe
   end
 

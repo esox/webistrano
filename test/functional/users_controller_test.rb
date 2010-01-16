@@ -1,6 +1,17 @@
 require File.dirname(__FILE__) + '/../test_helper'
+require 'users_controller'
 
-class UsersControllerTest < ActionController::TestCase
+# Re-raise errors caught by the controller.
+class UsersController; def rescue_action(e) raise e end; end
+
+class UsersControllerTest < Test::Unit::TestCase
+  fixtures :users
+
+  def setup
+    @controller = UsersController.new
+    @request    = ActionController::TestRequest.new
+    @response   = ActionController::TestResponse.new
+  end
 
   def test_should_not_allow_for_non_admins_to_create_users
     login

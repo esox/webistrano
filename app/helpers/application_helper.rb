@@ -13,14 +13,21 @@ module ApplicationHelper
     render(:partial => 'layouts/flash_locking', :locals => {:text => text})
   end
   
-  def flashed_errors(object_name)
+  def flashed_errors(object_name, included_attributes=[])
     obj = instance_variable_get("@#{object_name}")
-    return nil if obj.errors.blank?
     
-      
-    error_messages = obj.errors.full_messages.map {|msg| content_tag(:li, msg)}
+    errors = []
+    errors = obj.errors.full_messages unless obj.errors.blank?
+    
+    included_attributes.each do |attr|
+      errors.concat attr.errors.full_messages.collect{|m| attr.name.capitalize+': '+m.downcase}
+    end
+    
+    return if errors.size == 0
+    
+    error_messages = errors.map {|msg| content_tag(:li, msg)}
 
-    html = content_tag(:p,"#{pluralize(obj.errors.size, 'error')} prohibited this #{object_name.to_s.gsub('_', ' ')} from being saved")
+    html = content_tag(:p,"#{pluralize(errors.size, 'error')} prohibited this #{object_name.to_s.gsub('_', ' ')} from being saved")
     html << content_tag(:div,
                        content_tag(:ul, error_messages)
                        )

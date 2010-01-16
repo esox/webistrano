@@ -5,6 +5,11 @@
 </p>
 
 
+<p>
+  <b>Description</b><br />
+  <%= text_area 'configuration', 'description', :style =>'' %>
+</p>
+
   <table border="0" cellpadding="0" cellspacing="0">
     <tr>
       <td colspan="3">
@@ -14,7 +19,7 @@
 	<tr>
 	  <td>
         <% disabled = @configuration.prompt? ? {:disabled =>'disabled'} : {} %>
-        <%= text_field 'configuration', 'value', :style =>'width: 330px' %>
+        <%= text_field 'configuration', 'value', disabled.merge(:style =>'width: 330px') %>
       </td>
       <td style="padding:0px;">&nbsp;<b>or</b>&nbsp;</td>
       <td valign="bottom">
@@ -29,13 +34,11 @@
   
    Event.observe(window, 'load', function(){
       Event.observe('configuration_prompt_on_deploy', 'change', function(){
-
         if( $F('configuration_prompt_on_deploy') == '1' ){
           $('configuration_value').disable();
         } else {
           $('configuration_value').enable();
         }
-      
       });
     });
   

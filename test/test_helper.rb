@@ -4,7 +4,7 @@ require 'test_help'
 require 'mocha'
 require File.expand_path(File.dirname(__FILE__) + "/factories")
 
-class ActiveSupport::TestCase
+class Test::Unit::TestCase
   include AuthenticatedTestHelper
   include Factories
   

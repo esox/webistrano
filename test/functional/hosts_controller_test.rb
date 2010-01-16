@@ -1,8 +1,17 @@
 require File.dirname(__FILE__) + '/../test_helper'
+require 'hosts_controller'
 
-class HostsControllerTest < ActionController::TestCase
+# Re-raise errors caught by the controller.
+class HostsController; def rescue_action(e) raise e end; end
+
+class HostsControllerTest < Test::Unit::TestCase
+  fixtures :hosts
 
   def setup
+    @controller = HostsController.new
+    @request    = ActionController::TestRequest.new
+    @response   = ActionController::TestResponse.new
+    
     @host = create_new_host
   end
 

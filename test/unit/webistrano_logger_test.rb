@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class Webistrano::LoggerTest < ActiveSupport::TestCase
+class Webistrano::LoggerTest < Test::Unit::TestCase
 
   def setup
     @project = create_new_project(:template => 'rails')

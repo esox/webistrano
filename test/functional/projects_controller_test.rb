@@ -1,8 +1,17 @@
 require File.dirname(__FILE__) + '/../test_helper'
+require 'projects_controller'
 
-class ProjectsControllerTest < ActionController::TestCase
+# Re-raise errors caught by the controller.
+class ProjectsController; def rescue_action(e) raise e end; end
+
+class ProjectsControllerTest < Test::Unit::TestCase
+  fixtures :projects
 
   def setup
+    @controller = ProjectsController.new
+    @request    = ActionController::TestRequest.new
+    @response   = ActionController::TestResponse.new
+    
     @project = create_new_project
   end
 
