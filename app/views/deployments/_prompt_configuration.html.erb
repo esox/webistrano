@@ -1,0 +1,18 @@
+<% fields_for "deployment[prompt_config][]", prompt_configuration do |conf_form| -%>
+<div id="<%=h prompt_configuration.name %>">
+    <b>Config: <%=h prompt_configuration.name %></b>
+    <br/>
+    <p>
+        <%=h prompt_configuration.description %>
+    </p>
+	<p>
+		<%=error_message_on prompt_configuration, :value, :prepend_text=>prompt_configuration.name+' '%>
+	</p>
+	<% if prompt_configuration.name =~ /password/%>
+		<%=conf_form.password_field :value, :style=>"width:330px;"%>
+	<%else%>
+		<%=conf_form.text_field :value, :style=>"width:330px;"%>
+	<%end%>
+	<%=js_modifier prompt_configuration.validations, prompt_configuration.name%>
+</div>
+<%end -%>

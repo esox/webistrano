@@ -1,0 +1,22 @@
+<% if @recipe.configuration_parameters.empty? %>
+  <br/>
+    <strong>No specific configuration parameter is required by this recipe.</strong><br/>
+  </p>
+<% else %>
+  <table class="sortable">
+    <tr>
+      <th width="1%">Name</th>
+      <th width="98%">Value</th>
+      <th width="1%">Prompt?</th>
+    </tr>
+  <% for config in @recipe.configuration_parameters %>
+    <tr class="<%= cycle :even, :odd, :name => 'configs' %>">
+      <td title="<%=h config.name %>"><%= truncate(h(config.name), :length => 25) %></td>
+      <td title="<%=h config.value %>"><%=h truncate(hide_password_in_value(config), :length => 45) %></td>
+      <td><%= config.prompt_status_in_html %></td>
+      <td><%= link_to 'Edit', edit_recipe_recipe_configuration_path(@recipe, config) %></td>
+      <td><%= link_to 'Delete', recipe_recipe_configuration_path(@recipe, config), :confirm => 'Are you sure?', :method => :delete %></td>
+    </tr>
+  <% end %>
+  </table>
+<% end %>

@@ -1,0 +1,11 @@
+<% form_for(:configuration, :url => recipe_recipe_configuration_path(@recipe, @configuration), :html => { :method => :put }) do |f| %>
+  
+  <%= render(:partial => 'project_configurations/form')%>
+  <br/>
+
+  <%= link_to 'Back to recipe', recipe_path(@recipe), :class => 'arrow_link ontheright', :style => 'margin-right: 330px' %>
+
+  <p>
+    <%= submit_tag "Update" %>
+  </p>
+<% end %>
