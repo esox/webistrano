@@ -131,10 +131,20 @@ class DeploymentsController < ApplicationController
   end
   
   # Check that every parameter is valid
+  # Extracting the parameters is needed for the following reasons :
+  # - they come as {id=>value} instead of {name=>value}, which is needed by ActiveRecord to create objects
+  # - Stage/Deployment params come mixed with Recipe params, we then need to split them.
+  # We "fix" the params[:deployment][:prompt_config] hash following these principles
+  # so that it can be used as if nothing happened
+  # Nevertheless, we have to include ALL parameters (not just "non.recipe" ones)
+  # into params[:deployment][:prompt_config], otherwise they won't be passed to Capistrano
   def check_and_extract_parameters
     ok = true
     stage_parameters  = Array.new
     recipe_parameters = Array.new
+    
+    new_prompt_config = Hash.new
+    
     params[:deployment][:prompt_config].each do |id,value|
       value = value[:value]
       p = ConfigurationParameter.find(id)
@@ -144,8 +154,10 @@ class DeploymentsController < ApplicationController
       else
         stage_parameters << p
       end
+      new_prompt_config[p.name] = p.value
       ok = p.valid? && ok
     end
+    params[:deployment][:prompt_config] = new_prompt_config
     return ok,stage_parameters,recipe_parameters
   end
   
